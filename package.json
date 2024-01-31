@@ -1,0 +1,33 @@
+{
+  "name": "bilimdon-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "/src/server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "tsc",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\"",
+    "test": "jest test"
+  },
+  "author": "Bek Shoyatbekov",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/joi": "^17.2.3",
+    "@types/pino": "^7.0.5",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.1",
+    "nodemon": "^3.0.3"
+  },
+  "dependencies": {
+    "@grammyjs/types": "^3.4.6",
+    "@types/mongodb": "^4.0.7",
+    "@types/multer": "^1.4.11",
+    "ejs": "^3.1.9",
+    "grammy": "^1.20.3",
+    "mongodb": "^6.3.0",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1"
+  }
+}

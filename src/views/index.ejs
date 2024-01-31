@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yangi quiz</title>
+  </head>
+  <style>
+    .question {
+      margin-bottom: 20px;
+    }
+
+    .question textarea {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #image {
+      margin-bottom: 10px;
+    }
+    .quiz-form {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .quiz-form h2 {
+      text-align: center;
+    }
+
+    .answers {
+      border: 1px solid #ddd;
+      padding: 10px;
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .answer {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .answer input[type="text"] {
+      flex: 1;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .answer input[type="checkbox"] {
+      margin-left: 10px;
+    }
+
+    #add-answer {
+      display: block;
+      margin: 20px auto 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button[type="submit"] {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .explanation {
+      margin: 20px 0;
+    }
+
+    .explanation textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .question input[type="number"] {
+      display: block;
+      width: 100px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  </style>
+  <body>
+    <div class="quiz-form">
+      <h2>Yangi Quiz</h2>
+
+      <form action="/add-quiz" enctype="multipart/form-data" id="quizForm">
+        <div class="question">
+          <input type="file" name="image" id="image" required />
+          <textarea
+            name="question"
+            required
+            placeholder="Savol: Buxoxiyning asl vatani qayer ?"
+          ></textarea>
+        </div>
+        <div class="answers">
+          <div class="answer">
+            <input type="text" name="answer1" placeholder="Javob 1" />
+            <input
+              type="checkbox"
+              name="correct1"
+              class="check"
+              onclick="onlyOne(this)"
+            />
+          </div>
+
+          <div class="answer">
+            <input type="text" name="answer2" placeholder="Javob 2" />
+            <input
+              type="checkbox"
+              name="correct2"
+              class="check"
+              onclick="onlyOne(this)"
+            />
+          </div>
+        </div>
+        <div class="question">
+          <textarea
+            name="explanation"
+            required
+            placeholder="Nimaga javob shunday ?"
+          ></textarea>
+          <input type="number" name="point" min="1" placeholder="Ball" />
+        </div>
+        <button type="button" id="add-answer">Add Answer</button>
+        <button type="submit" id="submit">Add Quiz</button>
+      </form>
+    </div>
+    <script>
+      const submit = document.getElementById("submit");
+
+      const addAnswer = document.getElementById("add-answer");
+
+      const quizForm = document.getElementById("quizForm");
+
+      let answerCount = 2;
+
+      let answers = document.querySelectorAll(".answer input[type='checkbox']");
+
+      addAnswer.addEventListener("click", async () => {
+        if (answerCount >= 6) {
+          alert("Javoblar faqat 6 ta bo'lishi mumkun");
+          return;
+        }
+        const answers = document.querySelector(".answers");
+
+        const index = answers.childNodes.length + 1;
+
+        const newAnswer = document.createElement("div");
+
+        newAnswer.classList.add("answer");
+
+        newAnswer.innerHTML = `
+                   <input type="text" name="answer${
+                     answerCount + 1
+                   }" placeholder="Javob ${answerCount + 1}">
+                   <input type="checkbox" name="correct${
+                     answerCount + 1
+                   }" class="check"  onclick="onlyOne(this)" ">
+                 `;
+
+        answers.appendChild(newAnswer);
+
+        answerCount++;
+      });
+
+      submit.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const validForm = await validateFormData(quizForm);
+        if (!validForm) {
+          return;
+        }
+        let formData = new FormData();
+        const question = document.querySelector("textarea[name='question']");
+        const image = document.querySelector("input[type='file']");
+        const explanation = document.querySelector(
+          "textarea[name='explanation']"
+        );
+        const point = document.querySelector("input[name='point']");
+        const quizAnswers = [];
+        for (let i = 1; i <= answerCount; i++) {
+          const answer = document.querySelector(`input[name='answer${i}']`);
+          const correct = document.querySelector(`input[name='correct${i}']`);
+          quizAnswers.push(answer.value);
+          if (correct.checked) {
+            formData.append(`correct`, i);
+          }
+        }
+        formData.append("question", question.value);
+        formData.append("image", image.files[0]);
+        formData.append("answers", JSON.stringify(quizAnswers));
+        formData.append("explanation", explanation.value);
+        formData.append("point", point.value);
+
+        await addQuiz(formData);
+
+        quizForm.reset();
+      });
+
+      function onlyOne(checkbox) {
+        const checkboxes = document.querySelectorAll(".check");
+        checkboxes.forEach((item) => {
+          if (item !== checkbox) item.checked = false;
+        });
+      }
+
+      async function addQuiz(formData) {
+        const response = await fetch("/add-quiz", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          alert("Quiz qo'shildi");
+        } else {
+          alert("Nimadir hato ketdi. Qayta urunib ko'ring");
+        }
+      }
+
+      function validateFormData(formData) {
+        const image = formData.image;
+        const question = formData.question;
+        const explanation = formData.explanation;
+        // Check if required fields are empty
+        if (
+          image.value === "" ||
+          question.value === "" ||
+          explanation.value === ""
+        ) {
+          alert("Iltimos barcha majburiy maydonlarni to'ldiring!");
+          return false;
+        }
+        let isChecked = false;
+        const checks = document.querySelectorAll(".check");
+        checks.forEach((check) => {
+          if (check.checked) {
+            isChecked = true;
+          }
+        });
+
+        if (!isChecked) {
+          alert("Iltimos kamida bitta to'g'ri javobni tanlang!");
+          return false;
+        }
+        return true;
+      }
+    </script>
+  </body>
+</html>
