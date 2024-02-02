@@ -22,7 +22,7 @@ const handleUserAnswer = async (ctx: any) => {
 
     const isCorrectAnswer = parseInt(answer!) + 1 === parseInt(correctAnswer!);
 
-    const quiz = await getQuizById(quizId);
+    const quiz = await getQuizById(new ObjectId(quizId));
 
     let quizAnalytics = await getQuizAnalytics(quiz?._id!);
 

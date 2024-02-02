@@ -9,12 +9,15 @@ const checkIfUserAnswered = async (quizId: ObjectId, userId: number) => {
     const quizAnalytics = await db
       .collection("quiz_analytics")
       .findOne({ quizId });
-    const user = findUserById(
-      quizAnalytics?.correctAnswers,
-      quizAnalytics?.wrongAnswers,
-      userId
-    );
-    return user;
+    if (quizAnalytics) {
+      const user = findUserById(
+        quizAnalytics?.correctAnswers,
+        quizAnalytics?.wrongAnswers,
+        userId
+      );
+      return user;
+    }
+    return null;
   } catch (err) {
     logger.error(err);
   }
