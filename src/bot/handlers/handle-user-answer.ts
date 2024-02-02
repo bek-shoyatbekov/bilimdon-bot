@@ -20,6 +20,11 @@ const handleUserAnswer = async (ctx: any) => {
 
     const { buttonType, quizId, answer, correctAnswer } = separateData(data);
 
+    if (!quizId) {
+      await alert(ctx, "Xatolik yuz berdi");
+      return;
+    }
+
     const isCorrectAnswer = parseInt(answer!) + 1 === parseInt(correctAnswer!);
 
     const quiz = await getQuizById(new ObjectId(quizId));
