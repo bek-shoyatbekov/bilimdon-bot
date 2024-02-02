@@ -1,24 +1,22 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 import config from "../config";
+import { logger } from "../utils/log/logger";
 
-const connectDB = async () => {
+export const client = new MongoClient(config.mongoURI, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+export const connectDB = async () => {
   try {
-    const uri = config.mongoURI;
-    const client = new MongoClient(uri, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-      },
-    });
     await client.connect();
     console.log("MongoDB Connected...");
-    return client;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
   }
 };
-
-export default connectDB;

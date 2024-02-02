@@ -4,7 +4,8 @@ import path from "node:path";
 import config from "./config";
 import bot from "./bot";
 import mainRouter from "./routes/index";
-import errorHandler from "./bot/handle-error";
+import errorHandler from "./bot/handlers/handle-error";
+import { connectDB } from "./database/connectDB";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 app.use(mainRouter);
 
 app.listen(config.port, async () => {
+  await connectDB();
   bot.start();
   bot.catch(errorHandler);
   console.log("Server started on port %d", config.port);

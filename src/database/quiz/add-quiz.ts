@@ -1,12 +1,15 @@
-import IQuestion from "../../types/quiz/quiz-interface";
-import connectDB from "../connectDB";
+import IQuiz from "../../types/quiz/quiz-interface";
 
-const addQuiz = async (question: IQuestion) => {
-  const dbClient = await connectDB();
-  const db = dbClient.db("bilimdon");
+import { client } from "../connectDB";
+
+const addQuiz = async (question: IQuiz) => {
+  const db = client.db("bilimdon");
   try {
     const result = await db.collection("quizzes").insertOne(question);
-    return result;
+    const insertedQuiz = await db.collection("quizzes").findOne({
+      _id: result.insertedId,
+    });
+    return insertedQuiz;
   } catch (err) {
     console.error(err);
     return false;

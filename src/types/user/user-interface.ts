@@ -1,6 +1,9 @@
+import { ObjectId } from "mongodb";
+
 export default interface IUser {
-  id: number;
+  _id?: ObjectId;
+  telegramId: number;
   username?: string;
   name?: string;
-  points: number;
+  points?: number;
 }
