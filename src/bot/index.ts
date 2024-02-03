@@ -1,16 +1,23 @@
+/** @format */
+
 import { Bot } from "grammy";
+
 import config from "../config";
 import handleUserAnswer from "./handlers/handle-user-answer";
+import createCronJob from "../utils/cron-job";
+import setRating from "./helpers/set-rating";
 
 const bot = new Bot(config.botToken);
 
 bot.command("start", (ctx) => {
-  ctx.reply("Welcome! Up and running.");
+  ctx.reply("Bilimdon bot ishga tushdi...🤖");
+  return;
 });
 
 bot.on("callback_query", handleUserAnswer);
-bot.on("callback_query", async (ctx) => {
-  await ctx.answerCallbackQuery("Natijalar");
-});
+
+const winnersRatingJob = createCronJob("0 0 * * *", setRating);
+
+winnersRatingJob.start();
 
 export default bot;
