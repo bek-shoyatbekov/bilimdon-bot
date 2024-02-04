@@ -6,5 +6,4 @@ export interface IConfig {
   secret: string;
   botToken: string;
   channelId: number;
-  calculateRatingTimeInDays: number;
 }
