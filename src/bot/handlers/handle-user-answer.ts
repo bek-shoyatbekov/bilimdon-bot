@@ -41,10 +41,10 @@ const handleUserAnswer = async (ctx: any) => {
         parseInt(correctAnswer!);
 
       if (isOldAnswer && !isOldAnswerCorrect) {
-        await alert(ctx, `Xato javob berdingiz👎 \n\n💡 ` + quiz?.explanation);
+        await alert(ctx, `Hmm javob xato \n\n💡 ` + quiz?.explanation);
         return;
       } else if (isOldAnswer && isOldAnswerCorrect) {
-        alert(ctx, `Barakalla siz to'g'ri javobni topdingiz  🎉`);
+        alert(ctx, `Barakalla! Topdingiz  🎉`);
         return;
       }
       if (!isOldAnswer) {
@@ -82,7 +82,7 @@ const handleUserAnswer = async (ctx: any) => {
 
       await alert(
         ctx,
-        `🎯 Natijalar:\n\n✅ To'g'ri javoblar: ${correctAnswersInPercent}%\n❎ Noto'g'ri javoblar: ${wrongAnswersInPercent}% \n👥 Umumiy javoblar: ${totalAnswers}`
+        `🎯 Natijalar \n\n✅ To'g'ri javoblar: ${correctAnswersInPercent}%\n❎ Noto'g'ri javoblar: ${wrongAnswersInPercent}% \n👥 Umumiy javoblar: ${totalAnswers}`
       );
       return;
     }
@@ -94,7 +94,10 @@ const handleUserAnswer = async (ctx: any) => {
           updateUserPoint(user._id, (quiz?.point + user?.points) | 0),
           updateAnalytics(quizAnalytics._id, "correctAnswers", userId, answer!),
         ]);
-        alert(ctx, `✅ To'g'ri javob `);
+        alert(
+          ctx,
+          `✅ Malades! Javobingiz to'g'ri ✔️ \n💡 ${quiz?.explanation}`
+        );
         return;
       } else {
         await updateAnalytics(
@@ -103,7 +106,7 @@ const handleUserAnswer = async (ctx: any) => {
           userId,
           answer!
         );
-        alert(ctx, `❌ Noto'g'ri javob \n 💡 ${quiz?.explanation}`);
+        alert(ctx, `❌ Ehh !! Xato javob  \n 💡 ${quiz?.explanation}`);
         return;
       }
     }
