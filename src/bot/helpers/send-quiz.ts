@@ -7,12 +7,14 @@ import { logger } from "../../utils/log/logger";
 import ISendQuiz from "../../types/quiz/send-quiz-interface";
 import makeAnswerInlineButtons from "../../utils/bot/make-answer-inline-buttons";
 import { ObjectId } from "mongodb";
+import deleteFile from "../../utils/fs/delete-file";
 
 const publicFolderPath = path.join(__dirname, "../../../public");
 
 const sendQuiz = async (quiz: ISendQuiz) => {
   try {
-    const image = new InputFile(publicFolderPath + "/" + quiz.image);
+    const imagePath = publicFolderPath + "/" + quiz.image;
+    const image = new InputFile(imagePath);
     const answerKeyboards = makeAnswerInlineButtons(
       quiz.answers,
       quiz.id as ObjectId,
@@ -29,6 +31,8 @@ const sendQuiz = async (quiz: ISendQuiz) => {
         ],
       },
     });
+
+    await deleteFile(imagePath);
     return true;
   } catch (err) {
     logger.error(err);
