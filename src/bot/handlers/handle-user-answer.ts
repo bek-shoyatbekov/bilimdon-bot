@@ -1,3 +1,5 @@
+/** @format */
+
 import { ObjectId } from "mongodb";
 import getQuizAnalytics from "../../database/analytics/get-quiz-analytics";
 import getQuizById from "../../database/quiz/get-quiz-by-id";
@@ -20,11 +22,6 @@ const handleUserAnswer = async (ctx: any) => {
 
     const { buttonType, quizId, answer, correctAnswer } = separateData(data);
 
-    if (!quizId) {
-      await alert(ctx, "Xatolik yuz berdi");
-      return;
-    }
-
     const isCorrectAnswer = parseInt(answer!) + 1 === parseInt(correctAnswer!);
 
     const quiz = await getQuizById(new ObjectId(quizId));
@@ -37,23 +34,26 @@ const handleUserAnswer = async (ctx: any) => {
     );
 
     if (checkIfUserAnsweredResult && buttonType === "answer") {
-      const tip = isCorrectAnswer
-        ? ""
-        : "\n\nXato javob 👎 \n\n" + quiz?.explanation + " 💡";
-      const answers = JSON.parse(quiz?.answers);
-      await alert(
-        ctx,
-        `Javob berib bo'ldingiz: 🙅\n\nSizning javobingiz: ${
-          answers[checkIfUserAnsweredResult.answer]
-        } ${
-          checkIfUserAnsweredResult.answer + 1 ==
-          parseInt(correctAnswer as string)
-            ? "✅"
-            : "❌"
-        }\n ${tip}
-      `
-      );
-      return;
+      const isOldAnswer = checkIfUserAnsweredResult.answer === answer;
+
+      const isOldAnswerCorrect =
+        parseInt(checkIfUserAnsweredResult.answer!) + 1 ==
+        parseInt(correctAnswer!);
+
+      if (isOldAnswer && !isOldAnswerCorrect) {
+        await alert(ctx, `Hmm javob xato \n\n💡 ` + quiz?.explanation);
+        return;
+      } else if (isOldAnswer && isOldAnswerCorrect) {
+        alert(ctx, `Barakalla! Topdingiz  🎉`);
+        return;
+      }
+      if (!isOldAnswer) {
+        await alert(
+          ctx,
+          "Siz bu savolga javob berdingiz ✅\n\n💡 " + quiz?.explanation
+        );
+        return;
+      }
     }
 
     // Check if user exists
@@ -70,10 +70,7 @@ const handleUserAnswer = async (ctx: any) => {
 
     if (checkIfUserAnsweredResult && buttonType === "results") {
       const analytics = await getQuizAnalytics(quiz?._id!);
-      if (!analytics) {
-        await alert(ctx, "Hali javoblar hisoblanmadi...");
-        return;
-      }
+
       const correctAnswers = analytics?.correctAnswers?.length;
       const wrongAnswers = analytics?.wrongAnswers?.length;
       const totalAnswers = correctAnswers + wrongAnswers;
@@ -85,8 +82,9 @@ const handleUserAnswer = async (ctx: any) => {
 
       await alert(
         ctx,
-        `🎯 Natijalar:\n\n✅ To'g'ri javoblar: ${correctAnswersInPercent}%\n❎ Noto'g'ri javoblar: ${wrongAnswersInPercent}% \n👥 Umumiy javoblar: ${totalAnswers}`
+        `🎯 Natijalar \n\n✅ To'g'ri javoblar: ${correctAnswersInPercent}%\n❎ Noto'g'ri javoblar: ${wrongAnswersInPercent}% \n👥 Umumiy javoblar: ${totalAnswers}`
       );
+      return;
     }
 
     // Update user points and analytics
@@ -96,7 +94,10 @@ const handleUserAnswer = async (ctx: any) => {
           updateUserPoint(user._id, (quiz?.point + user?.points) | 0),
           updateAnalytics(quizAnalytics._id, "correctAnswers", userId, answer!),
         ]);
-        alert(ctx, `✅ To'g'ri javob `);
+        alert(
+          ctx,
+          `✅ Malades! Javobingiz to'g'ri ✔️ \n💡 ${quiz?.explanation}`
+        );
         return;
       } else {
         await updateAnalytics(
@@ -105,7 +106,7 @@ const handleUserAnswer = async (ctx: any) => {
           userId,
           answer!
         );
-        alert(ctx, `❌ Noto'g'ri javob \n 💡 ${quiz?.explanation}`);
+        alert(ctx, `❌ Ehh !! Xato javob  \n 💡 ${quiz?.explanation}`);
         return;
       }
     }

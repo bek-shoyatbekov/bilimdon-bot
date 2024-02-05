@@ -1,3 +1,5 @@
+/** @format */
+
 import "dotenv/config";
 
 import { IConfig } from "../types/config/config-interface";

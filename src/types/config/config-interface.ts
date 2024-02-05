@@ -1,3 +1,5 @@
+/** @format */
+
 export interface IConfig {
   port: number;
   mongoURI: string;
