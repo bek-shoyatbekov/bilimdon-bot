@@ -20,13 +20,13 @@ const sendQuiz = async (quiz: ISendQuiz) => {
       quiz.id as ObjectId,
       quiz.correctAnswer
     );
+
     await bot.api.sendPhoto(config.channelId, image, {
       caption: quiz.question,
       parse_mode: "HTML",
       reply_markup: {
         inline_keyboard: [
-          answerKeyboards[0],
-          answerKeyboards[1],
+          [...answerKeyboards[0], ...answerKeyboards[1]],
           [{ text: "Natijalar", callback_data: `results_${quiz.id}` }],
         ],
       },
