@@ -16,8 +16,8 @@ bot.command("start", (ctx) => {
 
 bot.on("callback_query", handleUserAnswer);
 
-const winnersRatingJob = createCronJob("0 0 * * *", setRating);
+// const winnersRatingJob = createCronJob("0 0 * * *", setRating);
 
-winnersRatingJob.start();
+// winnersRatingJob.start();
 
 export default bot;
