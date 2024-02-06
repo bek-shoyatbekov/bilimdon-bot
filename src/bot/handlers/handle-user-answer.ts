@@ -13,12 +13,23 @@ import updateAnalytics from "../../database/analytics/update-analytics";
 import checkIfUserAnswered from "../../database/analytics/check-if-user-answerd";
 import alert from "../helpers/alert";
 import calculatePercentages from "../../utils/analysis/calculate-percentages";
+import getUserInfo from "../helpers/get-user-info";
 
 const handleUserAnswer = async (ctx: any) => {
   try {
-    const { data } = ctx.callbackQuery;
-
     const userId = ctx?.from.id;
+
+    const isSubscribed = await getUserInfo(userId);
+
+    if (!isSubscribed?.status || isSubscribed?.status === "left") {
+      await alert(
+        ctx,
+        `❌Siz kanalga a'zo bo'lmagansiz \n\n 💡 Kanalimizga a'zo bo'ling`
+      );
+      return;
+    }
+
+    const { data } = ctx.callbackQuery;
 
     const { buttonType, quizId, answer, correctAnswer } = separateData(data);
 
